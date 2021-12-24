@@ -1,0 +1,35 @@
+version: '2'
+services:
+    postgresql:
+        image: postgres:9.6.5
+        container_name: sonar-db
+        ports:
+            - 5432:5432
+        restart: always
+        volumes:
+            - postgres:/var/lib/postgresql/data/:z
+            - ./data.sql:/docker-entrypoint-initdb.d/data.sql
+        networks:
+            sonar:
+                ipv4_address: 10.20.1.10
+        dns_search: .
+    sonarqube:
+        image: sonarqube:latest
+        container_name: sonar
+        restart: always
+        networks:
+            sonar:
+                ipv4_address: 10.20.1.11
+        ports:
+          - 9010:9000
+        env_file:
+          - .env
+volumes:
+    postgres:
+
+networks:
+    sonar:
+        ipam:
+            driver: default
+            config:
+            - subnet: 10.20.0.0/16
